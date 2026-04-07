@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CALLSIGN: ROOSTER</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --black: #080a08;
+    --dark: #0e110e;
+    --panel: #131713;
+    --border: #1f2a1f;
+    --green: #4a7c3f;
+    --green-bright: #6bba5e;
+    --green-glow: #88ff6a;
+    --tan: #c8a96e;
+    --tan-dark: #8a6f3e;
+    --red: #c0392b;
+    --text: #b8c9b0;
+    --text-dim: #5a6e54;
+    --white: #e8ede6;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* SCANLINES */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 9998;
+  }
+
+  /* ─── NAV ─────────────────────────────────────── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5rem;
+    height: 64px;
+    background: rgba(8,10,8,0.92);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.12em;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .nav-logo span {
+    color: var(--green-bright);
+    font-size: 0.75rem;
+    font-family: 'Share Tech Mono', monospace;
+    border: 1px solid var(--green);
+    padding: 2px 6px;
+    letter-spacing: 0.2em;
+    animation: blink 2.4s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    color: var(--text-dim);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -3px; left: 0; right: 0;
+    height: 1px;
+    background: var(--green-bright);
+    transform: scaleX(0);
+    transition: transform 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--green-bright); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+
+  /* ─── HERO ────────────────────────────────────── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 0 6vw;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 70% 50%, rgba(74,124,63,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 80% at 20% 80%, rgba(0,0,0,0.8) 0%, transparent 60%),
+      linear-gradient(135deg, #050705 0%, #0a140a 50%, #060c06 100%);
+  }
+
+  /* Camo pattern background */
+  .hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.06;
+    background-image:
+      radial-gradient(ellipse 80px 60px at 15% 20%, #4a7c3f 0%, transparent 70%),
+      radial-gradient(ellipse 120px 80px at 40% 70%, #2d4a2a 0%, transparent 60%),
+      radial-gradient(ellipse 60px 90px at 75% 30%, #3a5e35 0%, transparent 70%),
+      radial-gradient(ellipse 100px 50px at 85% 65%, #1e3a1a 0%, transparent 60%),
+      radial-gradient(ellipse 140px 70px at 55% 45%, #4a7c3f 0%, transparent 50%);
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(74,124,63,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(74,124,63,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    color: var(--green-bright);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 32px; height: 1px;
+    background: var(--green-bright);
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 12vw, 9rem);
+    line-height: 0.9;
+    color: var(--white);
+    letter-spacing: 0.04em;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .hero-title em {
+    display: block;
+    color: var(--green-bright);
+    font-style: normal;
+    text-shadow: 0 0 40px rgba(107,186,94,0.4);
+  }
+
+  .hero-sub {
+    margin-top: 1.5rem;
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    max-width: 400px;
+    line-height: 1.6;
+    animation: fadeUp 0.8s 0.35s ease both;
+  }
+
+  .hero-actions {
+    margin-top: 2.5rem;
+    display: flex;
+    gap: 1rem;
+    animation: fadeUp 0.8s 0.45s ease both;
+  }
+
+  .btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.8rem;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--green);
+    color: var(--white);
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+
+  .btn-primary:hover {
+    background: var(--green-bright);
+    color: var(--black);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+
+  .btn-outline:hover {
+    border-color: var(--green);
+    color: var(--green-bright);
+    transform: translateY(-2px);
+  }
+
+  .hero-stats {
+    position: absolute;
+    right: 6vw;
+    bottom: 8vh;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    z-index: 2;
+    animation: fadeUp 0.8s 0.6s ease both;
+  }
+
+  .stat {
+    text-align: right;
+    border-right: 2px solid var(--green);
+    padding-right: 1rem;
+  }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  /* Scroll indicator */
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    animation: fadeUp 1s 1s ease both;
+  }
+
+  .scroll-hint::after {
+    content: '';
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--text-dim), transparent);
+    animation: scrollPulse 1.5s ease infinite;
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(0.5); }
+    50% { opacity: 1; transform: scaleY(1); }
+  }
+
+  /* ─── SECTIONS ────────────────────────────────── */
+  section {
+    padding: 6rem 6vw;
+    position: relative;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--green);
+    margin-bottom: 0.3rem;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    letter-spacing: 0.06em;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--border), transparent);
+  }
+
+  /* ─── VIDEOS ──────────────────────────────────── */
+  #videos { background: var(--dark); }
+
+  .videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .video-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+    transition: border-color 0.2s, transform 0.2s;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  }
+
+  .video-card:hover {
+    border-color: var(--green);
+    transform: translateY(-4px);
+  }
+
+  .video-thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: linear-gradient(135deg, #0d150d, #1a2a1a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .video-thumb::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(74,124,63,0.03) 10px,
+        rgba(74,124,63,0.03) 20px
+      );
+  }
+
+  .play-btn {
+    width: 56px; height: 56px;
+    border: 2px solid var(--green-bright);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--green-bright);
+    font-size: 1.2rem;
+    transition: all 0.2s;
+    background: rgba(107,186,94,0.1);
+    text-decoration: none;
+  }
+
+  .play-btn:hover {
+    background: var(--green-bright);
+    color: var(--black);
+    transform: scale(1.1);
+  }
+
+  .video-info {
+    padding: 1rem 1.2rem;
+  }
+
+  .video-meta {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--green);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .video-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: 0.04em;
+    margin-bottom: 0.3rem;
+  }
+
+  .video-desc {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .video-tag {
+    display: inline-block;
+    margin-top: 0.6rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  /* ─── GEAR ────────────────────────────────────── */
+  #gear { background: var(--black); }
+
+  .gear-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .gear-category {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 1.8rem;
+    position: relative;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+  }
+
+  .gear-category::before {
+    content: attr(data-cat);
+    position: absolute;
+    top: 0; right: 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--black);
+    background: var(--green);
+    padding: 3px 10px;
+    text-transform: uppercase;
+  }
+
+  .gear-cat-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.08em;
+    color: var(--tan);
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .gear-cat-title::before {
+    content: '▸';
+    color: var(--green);
+    font-size: 0.9rem;
+  }
+
+  .gear-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(31,42,31,0.6);
+    gap: 1rem;
+  }
+
+  .gear-item:last-child { border-bottom: none; }
+
+  .gear-item-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: 0.03em;
+  }
+
+  .gear-item-detail {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+    letter-spacing: 0.1em;
+  }
+
+  .gear-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    padding: 2px 8px;
+    border: 1px solid var(--green);
+    color: var(--green-bright);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ─── SITES / BLOG ────────────────────────────── */
+  #sites { background: var(--dark); }
+
+  .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .blog-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 1.8rem;
+    position: relative;
+    transition: border-color 0.2s, transform 0.2s;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+  }
+
+  .blog-card:hover {
+    border-color: var(--tan-dark);
+    transform: translateY(-4px);
+  }
+
+  .blog-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .blog-location {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--tan);
+    text-transform: uppercase;
+  }
+
+  .blog-date {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .blog-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.05em;
+    color: var(--white);
+    margin-bottom: 0.6rem;
+    line-height: 1.1;
+  }
+
+  .blog-excerpt {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.65;
+    margin-bottom: 1.2rem;
+  }
+
+  .rating {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .rating-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .stars {
+    display: flex;
+    gap: 3px;
+  }
+
+  .star {
+    width: 10px; height: 10px;
+    background: var(--border);
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  }
+
+  .star.on { background: var(--tan); }
+
+  .read-more {
+    margin-top: 1.2rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--green);
+    text-decoration: none;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: color 0.2s;
+  }
+
+  .read-more:hover { color: var(--green-bright); }
+  .read-more::after { content: '→'; }
+
+  /* ─── SOCIALS ─────────────────────────────────── */
+  #connect { background: var(--black); }
+
+  .socials-wrap {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .social-card {
+    flex: 1;
+    min-width: 200px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+    transition: all 0.2s;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+    position: relative;
+    overflow: hidden;
+  }
+
+  .social-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .social-card.reddit::after { background: radial-gradient(circle at bottom left, rgba(255,69,0,0.06), transparent 60%); }
+  .social-card.instagram::after { background: radial-gradient(circle at bottom left, rgba(225,48,108,0.06), transparent 60%); }
+
+  .social-card:hover { transform: translateY(-4px); }
+  .social-card:hover::after { opacity: 1; }
+
+  .social-card.reddit:hover { border-color: #ff4500; }
+  .social-card.instagram:hover { border-color: #e1306c; }
+
+  .social-icon {
+    font-size: 2.2rem;
+    line-height: 1;
+  }
+
+  .social-platform {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.08em;
+    color: var(--white);
+  }
+
+  .social-handle {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .social-cta {
+    margin-top: auto;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.4rem 1rem;
+    border: 1px solid currentColor;
+    transition: all 0.2s;
+  }
+
+  .social-card.reddit .social-cta { color: #ff4500; }
+  .social-card.instagram .social-cta { color: #e1306c; }
+  .social-card.reddit:hover .social-cta { background: #ff4500; color: var(--white); }
+  .social-card.instagram:hover .social-cta { background: #e1306c; color: var(--white); }
+
+  /* ─── FOOTER ──────────────────────────────────── */
+  footer {
+    background: var(--dark);
+    border-top: 1px solid var(--border);
+    padding: 2rem 6vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+  }
+
+  .footer-copy {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+  }
+
+  .footer-sig {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--green);
+  }
+
+  /* ─── MOBILE ──────────────────────────────────── */
+  @media (max-width: 768px) {
+    nav { padding: 0 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 4rem 5vw; }
+    .gear-layout { grid-template-columns: 1fr; }
+    .hero-stats { display: none; }
+    .hero { padding: 0 5vw; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── NAV ──────────────────────────────── -->
+<nav>
+  <div class="nav-logo">
+    CALLSIGN: ROOSTER
+    <span>ONLINE</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#videos">// FOOTAGE</a></li>
+    <li><a href="#gear">// LOADOUT</a></li>
+    <li><a href="#sites">// OP REPORTS</a></li>
+    <li><a href="#connect">// COMMS</a></li>
+  </ul>
+</nav>
+
+<!-- ─── HERO ──────────────────────────────── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">Airsoft · UK · Est. 2024</div>
+    <h1 class="hero-title">
+      CALLSIGN
+      <em>ROOSTER</em>
+    </h1>
+    <p class="hero-sub">Footage, loadout builds, and field reports from the ground. Welcome to the ops hub.</p>
+    <div class="hero-actions">
+      <a href="#videos" class="btn btn-primary">▶ Watch Footage</a>
+      <a href="#sites" class="btn btn-outline">Field Reports</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">24+</div>
+      <div class="stat-label">OPS Completed</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">8</div>
+      <div class="stat-label">Sites Reviewed</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">3</div>
+      <div class="stat-label">Active Loadouts</div>
+    </div>
+  </div>
+  <div class="scroll-hint">Scroll</div>
+</section>
+
+<!-- ─── VIDEOS ────────────────────────────── -->
+<section id="videos">
+  <div class="section-header">
+    <div>
+      <div class="section-num">// 01</div>
+      <h2 class="section-title">FOOTAGE</h2>
+    </div>
+    <div class="section-line"></div>
+  </div>
+  <div class="videos-grid">
+
+    <div class="video-card">
+      <div class="video-thumb">
+        <a href="https://www.reddit.com/user/CallsignRooster" target="_blank" class="play-btn">▶</a>
+      </div>
+      <div class="video-info">
+        <div class="video-meta">Latest Drop · Reddit</div>
+        <div class="video-title">Your Latest Video</div>
+        <div class="video-desc">Add your video title and description here. Link your Reddit or Instagram posts to this card.</div>
+        <span class="video-tag">CQB</span>
+      </div>
+    </div>
+
+    <div class="video-card">
+      <div class="video-thumb">
+        <a href="https://www.instagram.com/CallsignRooster" target="_blank" class="play-btn">▶</a>
+      </div>
+      <div class="video-info">
+        <div class="video-meta">Instagram Reel</div>
+        <div class="video-title">Add Your Reel Here</div>
+        <div class="video-desc">Paste your Instagram reel link and describe the action. Flank, ambush, objective — your call.</div>
+        <span class="video-tag">Woodland</span>
+      </div>
+    </div>
+
+    <div class="video-card">
+      <div class="video-thumb">
+        <a href="#" class="play-btn">▶</a>
+      </div>
+      <div class="video-info">
+        <div class="video-meta">Reddit · r/airsoft</div>
+        <div class="video-title">Another Op</div>
+        <div class="video-desc">More footage from the field. Update this card with your next upload link and description.</div>
+        <span class="video-tag">MilSim</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── GEAR ──────────────────────────────── -->
+<section id="gear">
+  <div class="section-header">
+    <div>
+      <div class="section-num">// 02</div>
+      <h2 class="section-title">LOADOUT</h2>
+    </div>
+    <div class="section-line"></div>
+  </div>
+  <div class="gear-layout">
+
+    <div class="gear-category" data-cat="Primary">
+      <div class="gear-cat-title">Primary Weapons</div>
+      <div class="gear-item">
+        <div>
+          <div class="gear-item-name">Your Main AEG / GBB</div>
+          <div class="gear-item-detail">Brand · Model · FPS</div>
+        </div>
+        <span class="gear-badge">Main</span>
+      </div>
+      <div class="gear-item">
+        <div>
+          <div class="gear-item-name">Secondary Platform</div>
+          <div class="gear-item-detail">Brand · Model</div>
+        </div>
+        <span class="gear-badge">Alt</span>
+      </div>
+      <div class="gear-item">
+        <div>
+          <div class="gear-item-name">Sidearm</div>
+          <div class="gear-item-detail">Brand · Model · GBB</div>
+        </div>
+        <span class="gear-badge">Sidearm</span>
+      </div>
+    </div>
+
+    <div class="gear-category" data-cat="Protection">
+      <div class="gear-cat-title">Head &amp; Eye Pro</div>
+      <div class="gear-item">
+        <div>
+          <div class="gear-item-name">Goggles / Mask</div>
+          <div class="gear-item-detail">Brand · Model</div>
+        </div>
+        <span class="gear-badge">Full Seal</span>
+      </div>
+      <div class="gear-item">
+        <div>
+          <div class="gear-item-name">Helmet</div>
+          <div class="gear-item-detail">Brand · Style</div>
+        </div>
+        <span class="gear-badge">FAST</span>
+      </div>
+      <div class="gear-item">
+        <div>
+          <div class="gear-item-name">Gloves</div>
+          <div class="gear-item-detail">Brand · Style</div>
+        </div>
+        <span class="gear-badge">Tactical</span>
+      </div>
+    </div>
+
+    <div class="gear-category" data-cat="Plate Carrier">
+      <div class="gear-cat-title">Plate Carrier &amp; Rig</div>
+      <div class="gear-item">
+        <div>
+          <div class="gear-item-name">Plate Carrier</div>
+          <div class="gear-item-detail">Brand · Model · Colour</div>
+        </div>
+        <span class="gear-badge">PC</span>
+      </div>
+      <div class="gear-item">
+        <div>
+          <div class="gear-item-name">Magazine Pouches</div>
+          <div class="gear-item-detail">Brand · Qty</div>
+        </div>
+        <span class="gear-badge">MOLLE</span>
+      </div>
+      <div class="gear-item">
+        <div>
+          <div class="gear-item-name">Comms / Radio</div>
+          <div class="gear-item-detail">Brand · Model</div>
+        </div>
+        <span class="gear-badge">Radio</span>
+      </div>
+    </div>
+
+    <div class="gear-category" data-cat="Extras">
+      <div class="gear-cat-title">Extras &amp; Tech</div>
+      <div class="gear-item">
+        <div>
+          <div class="gear-item-name">Optic / Red Dot</div>
+          <div class="gear-item-detail">Brand · Magnification</div>
+        </div>
+        <span class="gear-badge">Optic</span>
+      </div>
+      <div class="gear-item">
+        <div>
+          <div class="gear-item-name">Torch / Laser</div>
+          <div class="gear-item-detail">Brand · Output</div>
+        </div>
+        <span class="gear-badge">Light</span>
+      </div>
+      <div class="gear-item">
+        <div>
+          <div class="gear-item-name">BBs</div>
+          <div class="gear-item-detail">Brand · Weight</div>
+        </div>
+        <span class="gear-badge">0.28g</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── SITES ─────────────────────────────── -->
+<section id="sites">
+  <div class="section-header">
+    <div>
+      <div class="section-num">// 03</div>
+      <h2 class="section-title">OP REPORTS</h2>
+    </div>
+    <div class="section-line"></div>
+  </div>
+  <div class="blog-grid">
+
+    <div class="blog-card">
+      <div class="blog-card-header">
+        <div class="blog-location">📍 Your Local Site</div>
+        <div class="blog-date">APR 2025</div>
+      </div>
+      <div class="blog-title">Site Name Here</div>
+      <p class="blog-excerpt">Write your site review here. What was the terrain like? How were the marshals? Was the site well-maintained? Any standout moments from the day?</p>
+      <div class="rating">
+        <span class="rating-label">Rating</span>
+        <div class="stars">
+          <div class="star on"></div>
+          <div class="star on"></div>
+          <div class="star on"></div>
+          <div class="star on"></div>
+          <div class="star"></div>
+        </div>
+      </div>
+      <a href="#" class="read-more">Full Report</a>
+    </div>
+
+    <div class="blog-card">
+      <div class="blog-card-header">
+        <div class="blog-location">📍 Another Site</div>
+        <div class="blog-date">MAR 2025</div>
+      </div>
+      <div class="blog-title">Second Site</div>
+      <p class="blog-excerpt">Add your second site review here. Talk about game modes, the community atmosphere, parking, value for money, and whether you'd return.</p>
+      <div class="rating">
+        <span class="rating-label">Rating</span>
+        <div class="stars">
+          <div class="star on"></div>
+          <div class="star on"></div>
+          <div class="star on"></div>
+          <div class="star on"></div>
+          <div class="star on"></div>
+        </div>
+      </div>
+      <a href="#" class="read-more">Full Report</a>
+    </div>
+
+    <div class="blog-card">
+      <div class="blog-card-header">
+        <div class="blog-location">📍 Coming Soon</div>
+        <div class="blog-date">UPCOMING</div>
+      </div>
+      <div class="blog-title">Next Op</div>
+      <p class="blog-excerpt">This slot is ready for your next field report. Book a site, go out, have a blast, then fill this card in when you get back.</p>
+      <div class="rating">
+        <span class="rating-label">Rating</span>
+        <div class="stars">
+          <div class="star"></div>
+          <div class="star"></div>
+          <div class="star"></div>
+          <div class="star"></div>
+          <div class="star"></div>
+        </div>
+      </div>
+      <a href="#" class="read-more">Pending</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── CONNECT ────────────────────────────── -->
+<section id="connect">
+  <div class="section-header">
+    <div>
+      <div class="section-num">// 04</div>
+      <h2 class="section-title">COMMS</h2>
+    </div>
+    <div class="section-line"></div>
+  </div>
+  <div class="socials-wrap">
+
+    <a href="https://www.reddit.com/user/CallsignRooster" target="_blank" class="social-card reddit">
+      <div class="social-icon">🟠</div>
+      <div class="social-platform">Reddit</div>
+      <div class="social-handle">u/CallsignRooster</div>
+      <p style="font-size:0.82rem;color:var(--text-dim);line-height:1.5;">Full gameplay clips, discussions, and gear talk posted to r/airsoft and my profile.</p>
+      <div class="social-cta">Visit Profile</div>
+    </a>
+
+    <a href="https://www.instagram.com/CallsignRooster" target="_blank" class="social-card instagram">
+      <div class="social-icon">📸</div>
+      <div class="social-platform">Instagram</div>
+      <div class="social-handle">@CallsignRooster</div>
+      <p style="font-size:0.82rem;color:var(--text-dim);line-height:1.5;">Reels, loadout shots, and behind-the-scenes from every op. Follow for regular drops.</p>
+      <div class="social-cta">Follow</div>
+    </a>
+
+  </div>
+</section>
+
+<!-- ─── FOOTER ────────────────────────────── -->
+<footer>
+  <div class="footer-logo">CALLSIGN: ROOSTER</div>
+  <div class="footer-copy">© 2025 CallsignRooster · All rights reserved</div>
+  <div class="footer-sig">STAY FROSTY.</div>
+</footer>
+
+</body>
+</html>
